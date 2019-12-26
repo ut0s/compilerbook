@@ -9,10 +9,10 @@ try(){
   ./9cc "$input" > tmp.s
   gcc -o tmp tmp.s
   ./tmp
-  atcutal="$?"
+  actual="$?"
 
   if [ "$actual" = "$expected" ];then
-    ehco "$input -> $actual"
+    echo "$input -> $actual"
   else
     echo "$input -> $expected, but got $actual"
     exit 1
