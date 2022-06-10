@@ -23,10 +23,18 @@ struct Token {
 // Current token
 Token* token;
 
-// Reports an error and exit.
-void error(char* fmt, ...) {
+// Input program
+char* user_input;
+
+// Reports an error location and exit.
+void error_at(char* loc, char* fmt, ...) {
   va_list ap;
   va_start(ap, fmt);
+
+  int pos = loc - user_input;
+  fprintf(stderr, "%s\n", user_input);
+  fprintf(stderr, "%*s", pos, " "); // outout space number of pos
+  fprintf(stderr, "^");
   vfprintf(stderr, fmt, ap);
   fprintf(stderr, "\n");
   exit(1);
@@ -44,14 +52,14 @@ bool consume(char op) {
 // Ensure that the current token is `op`.
 void expect(char op) {
   if (token->kind != TK_RESERVED || token->str[0] != op)
-    error("expected '%c'", op);
+    error_at(token->str, "expected '%c'", op);
   token = token->next;
 }
 
 // Ensure that the current token is TK_NUM.
 int expect_number() {
   if (token->kind != TK_NUM) {
-    error("expected a numer");
+    error_at(token->str, "expected a numer");
   }
 
   int val = token->val;
@@ -98,7 +106,7 @@ Token* tokenize(char* p) {
       continue;
     }
 
-    error("invalid token");
+    error_at(p, "expected a number");
   }
 
   new_token(TK_EOF, cur, p);
@@ -107,10 +115,11 @@ Token* tokenize(char* p) {
 
 int main(int argc, char** argv) {
   if (argc != 2) {
-    error("%s: invalid number of arguments", argv[0]);
+    error_at(token->str, "%s: invalid number of arguments", argv[0]);
     return 1;
   }
 
+  user_input = argv[1];
   // tokenize
   token = tokenize(argv[1]);
 
